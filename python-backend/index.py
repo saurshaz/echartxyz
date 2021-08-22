@@ -2,23 +2,29 @@ from flask import Flask, render_template, jsonify, request
 from pandas_datareader import data
 import datetime
 import json
-from flask_cors import CORS
 # from bokeh.plotting import figure, show, output_file
 # from bokeh.embed import components
 # from bokeh.resources import CDN
 
 app=Flask(__name__)
 
-# FIXME: make below changes only for dev environments
-CORS(app)
-# cors = CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
+# # FIXME: make below changes only for dev environments
+# CORS(app)
+# CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
 
 @app.route('/')
-def home():
-    
+def index():
+    return render_template("index.html", data={'nodata': True, 'token': 'access_token', 'crypto_tokens': 'crypto_tokens'}) 
+
+@app.route('/echart')
+def echart():
+    return render_template("echart.html", data={'nodata': True, 'token': 'access_token', 'crypto_tokens': 'crypto_tokens'}) 
+
+@app.route('/api')
+def api():
     # defaults :: these shall not be used
     start = datetime.datetime(2020, 11, 1)
-    end = datetime.datetime(2021, 3, 10)
+    end = datetime.datetime(2021, 1, 10)
     symbol = "MSFT"
 
     if(request.args.get('sm') is not None):
@@ -32,11 +38,12 @@ def home():
 
         start = datetime.datetime(year=int(syr), month=int(smm), day=int(sdd))
         end = datetime.datetime(year=int(eyr), month=int(emm), day=int(edd))
+
     df = data.DataReader(name=symbol, data_source="yahoo", start=start, end=end)
     df = df[['Open','Close','Low','High','Volume', 'Adj Close']]
 
     # df.select_dtypes(include='datetime').apply(lambda x: x.strftime("%d-%b-%y"))
-    return json.loads(df.to_json(orient="split"))
+    return jsonify(json.loads(df.to_json(orient="split")))
 
     # p = figure(x_axis_type='datetime', width=1000, height=300, sizing_mode='scale_both')
     # p.title.text = "Candlestick Chart"
