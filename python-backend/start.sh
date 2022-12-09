@@ -1,1 +1,1 @@
-FLASK_ENV=development FLASK_APP=app.py python index.py
+FLASK_DEBUG=development FLASK_APP=app.py python index.py
